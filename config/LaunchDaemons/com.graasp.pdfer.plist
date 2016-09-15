@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.graasp.pdfer</string>
+    <key>UserName</key>
+    <string>admin</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>PATH</key>
+      <string>/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin</string>
+      <key>NODE_ENV</key>
+      <string>production</string>
+    </dict>
+    <key>ProgramArguments</key>
+    <array>
+      <string>/pdfer/node_modules/pm2/bin/pm2</string>
+      <string>reload</string>
+      <string>/pdfer/ecosystem.json</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <dict>
+      <key>SuccessfulExit</key>
+      <false/>
+    </dict>
+  </dict>
+</plist>

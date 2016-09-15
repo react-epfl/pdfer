@@ -1,0 +1,17 @@
+{
+  "apps" : [
+    {
+      "name": "pdfer",
+      "script": "server.js",
+      "instances": 1,
+      "cwd": (process.env.NODE_ENV === "production") ? "/pdfer/" : "/Users/" + process.env.USER + "/pdfer/",
+      "max_memory_restart": "1024M",
+      "log_file": "log/pdfer.log",
+      "out_file": "/dev/null",
+      "error_file": "log/err.log",
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "merge_logs": true,
+      "watch": (process.env.NODE_ENV === "production") ? false : ["server.js"]
+    }
+  ]
+}
