@@ -55,12 +55,19 @@
     'xlt95'
   ];
 
+  // queue variables
+  var queuedFiles = [];
+  var processing = false;
+  var queueTimeout;
+
   // basic authentication middleware
   var checkApiKey = function (req, res, next) {
     if (!apiKey) return next();
 
     if (req.headers.authorization === 'Bearer ' + apiKey) return next();
+    if (req.query.authorization === apiKey) return next();
 
+    res.status(401);
     next('API key incorrect');
   };
 
@@ -95,6 +102,7 @@
       // crash it goes back to (re)lauching LibreOffice on every conversion.
       killLibreOffice(startUnoconvListener);
     });
+    processing = false;
   };
   startUnoconvListener();
 
@@ -115,21 +123,24 @@
   var generatePdf = function (itemPath, pdfPath, cb) {
     var hashFileName;
 
-    unoconv.convert(itemPath, 'pdf', {port: unoconvPort}, function (err, data) {
-      if (err) {
-        console.error('Unoconv failed to convert', itemPath + ':', err);
-        return cb(err);
-      }
+    // try/catch just in case unoconv crashes
+    try {
+      unoconv.convert(itemPath, 'pdf', {port: unoconvPort}, function (err, data) {
+        if (err) {
+          console.error('Unoconv failed to convert', itemPath + ':', err);
+          return cb(err);
+        }
 
-      fs.writeFile(pdfPath, data, cb);
-    });
+        fs.writeFile(pdfPath, data, cb);
+      });
+    } catch (err) {
+      console.error('Unoconv crashed', err);
+      return cb(err);
+    }
   };
 
   // queue system used to only create one pdf at a time
   // unoconv/LibreOffice will crash if too many requests are made at once
-  var queuedFiles = [];
-  var processing = false;
-  var queueTimeout;
   var processQueue = function () {
     if (!queuedFiles.length) return;
 
@@ -226,6 +237,14 @@
     res.status(200).send('Queued files: ' + queuedFiles.length);
   };
 
+  // simple reset request
+  var reset = function (req, res) {
+    console.log('Reset request: Removing', queuedFiles.length, 'files from queue');
+    res.status(200).send('Removed files: ' + queuedFiles.length);
+    queuedFiles = [];
+    processing = false;
+  };
+
   // start server
   var app = express();
   var server = http.createServer(app);
@@ -242,9 +261,29 @@
 
   // routes
   app.route('/convert')
-    .all(checkApiKey)
-    .post(convert);
+    .post(
+      checkApiKey,
+      convert
+    );
+
+  app.route('/reset')
+    .get(
+      checkApiKey,
+      reset
+    );
 
   app.route('/status')
     .get(status);
+
+  // error handling
+  app.use(function (errMsg, req, res, next) {
+    res.send(errMsg);
+    console.error(errMsg);
+  });
+
+  // 404 error when path is incorrect
+  app.use(function (req, res) {
+    res.status(404).send('Page not found');
+    console.error('Page not found:', req.url);
+  });
 }());
