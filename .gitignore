@@ -2,3 +2,6 @@
 log/*
 !log/.gitkeep
 node_modules
+
+# exclude idea files
+.idea

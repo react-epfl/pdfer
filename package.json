@@ -1,17 +1,25 @@
 {
   "name": "pdfer",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Generate PDF files using unoconv",
+  "version": "0.0.1",
+  "private": false,
+  "description": "Generate PDF files using unoconv.",
   "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "REACT EPFL",
+  "contributors": [
+    "Alex Wild",
+    "André Nogueira",
+    "Andrii Vozniuk",
+    "Juan Carlos Farah"
+  ],
+  "license": "MIT",
   "dependencies": {
-    "express": "~4.15.2",
-    "formidable": "~1.1.1",
-    "pm2": "~2.4.2",
+    "express": "4.15.2",
+    "formidable": "1.1.1",
+    "pm2": "2.4.2",
     "unoconv": "git+https://github.com/voz/node-unoconv"
   }
 }
